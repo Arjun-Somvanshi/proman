@@ -16,14 +16,18 @@ class ProjectManager:
         try:
             with open(self.project_dir_path, 'r') as f:
                 self.directories = json.load(f)
-            with open(self.editor_file_path, 'r') as f:
-                self.editor = f.read()
-            with open(self.fm_file_path, 'r') as f:
-                self.filemanager = f.read()
-        except Exception as e:
+        except:
+            pass
+        with open(self.editor_file_path, 'r') as f:
+            self.editor = f.read()
+        with open(self.fm_file_path, 'r') as f:
+            self.filemanager = f.read()
+        if not self.editor:
             self.editor = "vim"
-            self.filemanager = "thunar"
             self.write_editor()
+        if not self.filemanager:
+            self.filemanager = "thunar"
+            self.write_filemanager()
         self.options = {"-p": self.runProject, "-a": self.addProject, 
                         "-r": self.deleteProject, "-t": self.ctags,
                         "-d": self.parseProjectDirectory, "-s": self.showDirectories,
