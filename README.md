@@ -1,8 +1,8 @@
 ## proman 
-## //////////////
-## \[   ]--[   ]/
-##        L
-##      -----
+//////////////
+\[   ]--[   ]/
+       L
+     -----
 proman is a project manager. It helps you manage your
 projects from a terminal. The features are listed below.
 
