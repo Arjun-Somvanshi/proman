@@ -7,33 +7,135 @@ import subprocess
 class ProjectManager:
     def __init__(self):
         self.directories = {}
+        self.editor = ""
         self.ctags_project_dir = ""
         self.project_dir_path = os.path.expanduser("~/.proman/project-directories.json")
+        self.editor_file_path = os.path.expanduser("~/.proman/editor.txt")
+        self.fm_file_path = os.path.expanduser("~/.proman/fm.txt")
+        self.filemanager = ""
         try:
             with open(self.project_dir_path, 'r') as f:
                 self.directories = json.load(f)
+            with open(self.editor_file_path, 'r') as f:
+                self.editor = f.read()
+            with open(self.fm_file_path, 'r') as f:
+                self.filemanager = f.read()
         except Exception as e:
-            pass
+            self.editor = "vim"
+            self.filemanager = "thunar"
+            self.write_editor()
         self.options = {"-p": self.runProject, "-a": self.addProject, 
                         "-r": self.deleteProject, "-t": self.ctags,
                         "-d": self.parseProjectDirectory, "-s": self.showDirectories,
-                        "-v": self.printVersion}
+                        "-v": self.printVersion, "-e": self.setEditor,
+                        "-f": self.setFileManager, "-o": self.openProject,
+                        "-h": self.help}
     
     def printVersion(self, *args):
         print("proman Project Manager version 1.0")
+
+    def help(self, *args):
+        helpstr = """
+        proman 
+        //////////////
+        \[   ]--[   ]/
+              L
+            -----
+        proman is a project manager. It helps you manage your
+        projects from a terminal. The features are listed below.
+
+        To UNINSTALL go to the cloned directory and run: bash uninstall.sh 
+
+        Features
+        ********
+
+        Add your project directories 
+        ----------------------------
+        proman reads your project directories and imports all the absolute paths
+        to your projects. 
+        To add a project directory do this:
+        proman -d /home/user/pythonProjects
+
+        Access your projects from any directory instantly
+        -------------------------------------------------
+        Now all the directories under pythonProjects will be added to the
+        ~/.proman/project-directories.json file. 
+
+        Now you can open them using the terminal instantly with the editor of 
+        your choice by typing:
+
+        proman -p ProjectName
+
+        or simply use:
+
+        proman ProjectName
+
+        Open your projects in an editor or file manager of choice
+        ---------------------------------------------------------
+        By default the editor is vim, to set the editor to something else
+        use the name your editor uses to identify itself in the terminal. 
+        Then run this command:
+        proman -e EditorName
+
+        Default FileManger is thunar set it to something else with:
+        proman -f fileManagerName
+
+        Open a project directory in the filemanager with:
+        proman -o projectName
+
+        Remove and list projects
+        -------------------------
+        To list all projects run:
+        proman -s
+
+        To remove a project run:
+        proman -r ProjectName
+
+        Generate ctags for your projects before opening
+        -----------------------------------------------
+        Pre-requiste: ctags
+
+        proman -p ProjectName -t
+
+        -t is to be used after specifying the project name not before.
+
+        Use proman -v to see the version and -h to see the usage
+
+        Contributing
+        ************
+        Pull requests are welcome. For major changes, please open an 
+        issue first to discuss what you would like to change.
+        Please make sure to update tests as appropriate.
+        https://github.com/Arjun-Somvanshi/proman
+
+        License
+        *******
+        [GNU GPL](https://www.gnu.org/licenses/)
+        """
+        print(helpstr)
 
     def write_directories(self):
         with open(self.project_dir_path, 'w') as f:
             json.dump(self.directories, f, indent=2)
 
+    def write_editor(self):
+        with open(self.editor_file_path, "w") as f:
+            f.write(self.editor)
+
+    def write_filemanager(self):
+        with open(self.fm_file_path, "w") as f:
+            f.write(self.filemanager)
+
     def parseProjectDirectory(self, projectdir):
         if os.path.isdir(projectdir):
             contents = os.listdir(projectdir)
-        for item in contents:
-            item_absolute_path = os.path.join(projectdir, item)
-            if os.path.isdir(item_absolute_path):
-                self.directories[item] = item_absolute_path
-        self.write_directories()
+            for item in contents:
+                item_absolute_path = os.path.join(projectdir, item)
+                if os.path.isdir(item_absolute_path):
+                    self.directories[item] = item_absolute_path
+            self.write_directories()
+        else:
+            print("No such directory was found.")
 
     def showDirectories(self, *args):
         for key in self.directories:
@@ -50,13 +152,22 @@ class ProjectManager:
             print()
 
     def runProject(self, projectName):
+        projectDir = None
         try:
             print("Running Project", projectName)
             projectDir = self.directories[projectName]
-            subprocess.run('cd '+projectDir+' ; vim .', shell=True)
-            self.ctags_project_dir = projectDir
         except Exception as e:
-            print("Project Directory Not found", e)
+            print("No such project dirctory was found: ", e)
+        else:
+            try:
+                subprocess.run('cd '+projectDir+' ; ' + self.editor + " .", shell=True)
+            except Exception as e:
+                print("Error while opening the project: ", e)
+            else:
+                try:
+                    self.ctags_project_dir = projectDir
+                except Exception as e:
+                    print("Ctags Error occured: ", e)
 
     def addProject(self, *args):
         projectName = input("Enter the name of the project: ")
@@ -74,7 +185,24 @@ class ProjectManager:
             del self.directories[projectName]
             self.write_directories()
         except Exception as e:
-            print(e)
+            print("Error Not a project: ", e)
+    
+    def setEditor(self, editor):
+        self.editor = editor
+        self.write_editor()
+
+    def setFileManager(self, filemanager):
+        self.filemanager = filemanger
+        self.write_filemanager()
+    
+    def openProject(self, projectName):
+        try:
+            print("Opening Project", projectName)
+            projectDir = self.directories[projectName]
+            print(self.filemanager + " " + projectDir)
+            subprocess.run(self.filemanager + " " + projectDir, shell=True)
+        except Exception as e:
+            print("No such project dirctory was found: ", e)
 
     def ctags(self, *args):
         if self.ctags_project_dir:
@@ -89,10 +217,14 @@ class ProjectManager:
 
 if __name__ == "__main__":
     args = sys.argv[1:]
+        
     try:
-        opts, arg = getopt.getopt(args, 'vp:ar:tsd:')
+        opts, arg = getopt.getopt(args, 'vhp:ar:tsd:e:f:o:')
     except Exception as e:
         print("Wrong Usage\n", e)
     else:
         projectManager = ProjectManager()
-        projectManager.run(opts)
+        if len(args) == 1 and args[0] not in  ['-a', '-h', '-v', '-t', '-s']:
+            projectManager.runProject(args[0])
+        else: 
+            projectManager.run(opts)
