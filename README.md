@@ -1,8 +1,8 @@
-## proman 
+# proman 
 proman is a project manager. It helps you manage your
 projects from a terminal. The features are listed below.
 
-## Installation
+# Installation
 Step 1: Download or Clone this repository to any location.
 Step 2: cd proman/
 Step 3: bash install.sh
@@ -12,15 +12,15 @@ To UNINSTALL come back to the directory and run: bash uninstall.sh
 
 To UNINSTALL go to the cloned directory and run: bash uninstall.sh 
 
-## Features
+# Features
 
-# Add your project directories 
+## Add your project directories 
 proman reads your project directories and imports all the absolute paths
 to your projects. 
 To add a project directory do this:
 proman -d /home/user/pythonProjects
 
-# Access your projects from any directory instantly
+## Access your projects from any directory instantly
 Now all the directories under pythonProjects will be added to the
 ~/.proman/project-directories.json file. 
 
@@ -33,7 +33,7 @@ or simply use:
 
 proman ProjectName
 
-# Open your projects in an editor or file manager of choice
+## Open your projects in an editor or file manager of choice
 By default the editor is vim, to set the editor to something else
 use the name your editor uses to identify itself in the terminal. 
 Then run this command:
@@ -45,14 +45,14 @@ proman -f fileManagerName
 Open a project directory in the filemanager with:
 proman -o projectName
 
-# Remove and list projects
+## Remove and list projects
 To list all projects run:
 proman -s
 
 To remove a project run:
 proman -r ProjectName
 
-# Generate ctags for your projects before opening
+## Generate ctags for your projects before opening
 Pre-requiste: ctags
 
 proman -p ProjectName -t
@@ -61,11 +61,11 @@ proman -p ProjectName -t
 
 Use proman -v to see the version and -h to see the usage
 
-## Contributing
+# Contributing
 Pull requests are welcome. For major changes, please open an 
 issue first to discuss what you would like to change.
 Please make sure to update tests as appropriate.
 https://github.com/Arjun-Somvanshi/proman
 
-## License
+# License
 [GNU GPL](https://www.gnu.org/licenses/)
