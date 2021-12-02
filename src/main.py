@@ -34,6 +34,10 @@ class ProjectManager:
                         "-v": self.printVersion, "-e": self.setEditor,
                         "-f": self.setFileManager, "-o": self.openProject,
                         "-h": self.help}
+        # comment this out 
+        # print(self.directories)
+        # print()
+        # print()
     
     def printVersion(self, *args):
         print("proman Project Manager version 1.0")
@@ -160,6 +164,7 @@ class ProjectManager:
         try:
             print("Running Project", projectName)
             projectDir = self.directories[projectName]
+            projectDir = projectDir.replace(" ", "\ ")
         except Exception as e:
             print("No such project dirctory was found: ", e)
         else:
@@ -172,6 +177,15 @@ class ProjectManager:
                     self.ctags_project_dir = projectDir
                 except Exception as e:
                     print("Ctags Error occured: ", e)
+
+    def openProject(self, projectName):
+        try:
+            print("Opening Project", projectName)
+            projectDir = self.directories[projectName]
+            projectDir = projectDir.replace(" ", "\ ")
+            subprocess.run(self.filemanager + " " + projectDir, shell=True)
+        except Exception as e:
+            print("No such project dirctory was found: ", e)
 
     def addProject(self, *args):
         projectName = input("Enter the name of the project: ")
@@ -196,17 +210,9 @@ class ProjectManager:
         self.write_editor()
 
     def setFileManager(self, filemanager):
-        self.filemanager = filemanger
+        self.filemanager = filemanager
         self.write_filemanager()
     
-    def openProject(self, projectName):
-        try:
-            print("Opening Project", projectName)
-            projectDir = self.directories[projectName]
-            print(self.filemanager + " " + projectDir)
-            subprocess.run(self.filemanager + " " + projectDir, shell=True)
-        except Exception as e:
-            print("No such project dirctory was found: ", e)
 
     def ctags(self, *args):
         if self.ctags_project_dir:
@@ -221,7 +227,6 @@ class ProjectManager:
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-        
     try:
         opts, arg = getopt.getopt(args, 'vhp:ar:tsd:e:f:o:')
     except Exception as e:
