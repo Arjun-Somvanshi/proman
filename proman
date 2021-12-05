@@ -1,7 +1,2 @@
 #!/bin/bash
-args=""
-for argument in "$@"
-do
-args=$args" "$argument
-done
-python ~/.proman/src/main.py $args
+python ~/.proman/src/main.py "$@"
