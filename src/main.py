@@ -136,6 +136,14 @@ class ProjectManager:
         with open(self.fm_file_path, "w") as f:
             f.write(self.filemanager)
 
+    def removeDeletedDirectories(self):
+        directoriesToRemove = []
+        for directory in self.directories:
+            if not os.path.isdir(self.directories[directory]):
+                directoriesToRemove.append(directory)
+        for directory in directoriesToRemove: 
+            del self.directories[directory]
+
     def refreshContainerDirectories(self):
         try: 
             with open(self.project_container_path, 'r') as f:
@@ -145,9 +153,9 @@ class ProjectManager:
         if self.container_directories["containers"]:
             for directory in self.container_directories["containers"]:
                 self.parseProjectDirectory(directory)
+        self.removeDeletedDirectories()
 
     def parseProjectDirectory(self, projectdir):
-        self.directories = {}
         if os.path.isdir(projectdir):
             contents = os.listdir(projectdir)
             for item in contents:
