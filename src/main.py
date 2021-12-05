@@ -7,11 +7,13 @@ import subprocess
 class ProjectManager:
     def __init__(self):
         self.directories = {}
+        self.container_directories = {"containers": []}
         self.editor = ""
         self.ctags_project_dir = ""
         self.project_dir_path = os.path.expanduser("~/.proman/project-directories.json")
         self.editor_file_path = os.path.expanduser("~/.proman/editor.txt")
         self.fm_file_path = os.path.expanduser("~/.proman/fm.txt")
+        self.project_container_path = os.path.expanduser("~/.proman/project-container-directories.json")
         self.filemanager = ""
         try:
             with open(self.project_dir_path, 'r') as f:
@@ -134,7 +136,22 @@ class ProjectManager:
         with open(self.fm_file_path, "w") as f:
             f.write(self.filemanager)
 
+    def refreshContainerDirectories(self):
+        try: 
+            with open(self.project_container_path, 'r') as f:
+                self.container_directories = json.load(f)
+        except:
+            pass
+        print(self.container_directories)
+        if self.container_directories["containers"]:
+            for directory in self.container_directories["containers"]:
+                print("what the", end=" ")
+                print(directory)
+                self.parseProjectDirectory(directory)
+
     def parseProjectDirectory(self, projectdir):
+        self.directories = {}
+        print("Project Directory to parse: ", projectdir)
         if os.path.isdir(projectdir):
             contents = os.listdir(projectdir)
             for item in contents:
@@ -142,11 +159,17 @@ class ProjectManager:
                 if os.path.isdir(item_absolute_path):
                     self.directories[item] = item_absolute_path
             self.write_directories()
+            if not (projectdir in self.container_directories["containers"]):
+                self.container_directories['containers'].append(projectdir)
+                with open(self.project_container_path, 'w') as f:
+                    json.dump(self.container_directories, f, indent=2)
         else:
-            print("No such directory was found.")
+            print("162: No such directory was found.")
 
     def showDirectories(self, *args):
-        for key in self.directories:
+        directory_keys = list(self.directories.keys())
+        directory_keys = sorted(directory_keys)
+        for key in directory_keys:
             directoryInfo = "Dirctory: " + self.directories[key]
             decorationLen = len(directoryInfo)
             for i in range(decorationLen):
@@ -233,6 +256,7 @@ if __name__ == "__main__":
         print("Wrong Usage\n", e)
     else:
         projectManager = ProjectManager()
+        projectManager.refreshContainerDirectories()
         if len(args) == 1 and args[0] not in  ['-a', '-h', '-v', '-t', '-s']:
             projectManager.runProject(args[0])
         else: 
