@@ -142,16 +142,12 @@ class ProjectManager:
                 self.container_directories = json.load(f)
         except:
             pass
-        print(self.container_directories)
         if self.container_directories["containers"]:
             for directory in self.container_directories["containers"]:
-                print("what the", end=" ")
-                print(directory)
                 self.parseProjectDirectory(directory)
 
     def parseProjectDirectory(self, projectdir):
         self.directories = {}
-        print("Project Directory to parse: ", projectdir)
         if os.path.isdir(projectdir):
             contents = os.listdir(projectdir)
             for item in contents:
@@ -164,7 +160,7 @@ class ProjectManager:
                 with open(self.project_container_path, 'w') as f:
                     json.dump(self.container_directories, f, indent=2)
         else:
-            print("162: No such directory was found.")
+            print("No such directory was found.")
 
     def showDirectories(self, *args):
         directory_keys = list(self.directories.keys())
